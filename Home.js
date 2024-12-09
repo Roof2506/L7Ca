@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { StatusBar, Button, SectionList, StyleSheet, Text, TouchableOpacity, View, Alert } from 'react-native';
+import { StatusBar, TouchableOpacity, SectionList, StyleSheet, Text, View, Alert } from 'react-native';
 import { datasource } from './Data.js';
 
 const Home = ({ navigation }) => {
@@ -7,6 +7,33 @@ const Home = ({ navigation }) => {
 
     const toggleDarkMode = () => {
         setIsDarkMode(!isDarkMode);
+    };
+
+    const calculateTotalIncomeAndExpenses = () => {
+        let totalIncome = 0;
+        let totalExpenses = 0;
+
+        // Iterate over the data and sum up income and expenses
+        datasource.forEach(section => {
+            section.data.forEach(item => {
+                const value = parseFloat(item.Value);
+
+                if (section.title === 'Income') {
+                    totalIncome += value;
+                } else if (section.title === 'Expenses') {
+                    totalExpenses += value;
+                }
+            });
+        });
+
+        const netBalance = totalIncome - totalExpenses;
+        const resultMessage = `
+    Total Income: $${totalIncome.toFixed(2)}\n
+    Total Expenses: $${totalExpenses.toFixed(2)}\n
+    ${netBalance >= 0 ? 'You have made a gain of' : 'You are in a deficit of'}: $${Math.abs(netBalance).toFixed(2)}
+    `;
+
+        Alert.alert('Income & Expense Summary', resultMessage);
     };
 
     const styles = StyleSheet.create({
@@ -64,15 +91,15 @@ const Home = ({ navigation }) => {
             marginLeft: 10,
         },
         darkModeButton: {
-            backgroundColor: isDarkMode ? 'white' : 'black', // Changes based on dark mode
+            backgroundColor: isDarkMode ? 'white' : 'black',
             borderRadius: 5,
             padding: 10,
             marginBottom: 20,
-            marginTop: 10, // Space from the top
+            marginTop: 10,
             alignSelf: 'flex-end',
         },
         buttonText: {
-            color: isDarkMode ? 'black' : 'white', // Text color changes based on dark mode
+            color: isDarkMode ? 'black' : 'white',
             textAlign: 'center',
             fontWeight: 'bold',
         },
@@ -141,7 +168,7 @@ const Home = ({ navigation }) => {
                 <View style={styles.buttonContainer}>
                     <TouchableOpacity
                         style={styles.actionButton}
-                        onPress={() => { navigation.navigate('Add'); }}
+                        onPress={calculateTotalIncomeAndExpenses}
                     >
                         <Text style={styles.actionButtonText}>Calculate Total</Text>
                     </TouchableOpacity>
